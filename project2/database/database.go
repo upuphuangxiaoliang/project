@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"project/project2/model"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -13,7 +14,6 @@ import (
 var DB *sql.DB
 
 func Test() {
-
 	// 插入
 	// DB.Exec("insert into todos(title,status) values('123123',0)")
 
@@ -91,20 +91,15 @@ func init() {
 	DB = db
 }
 
-// type User struct {
-// 	Name      string
-// 	Telephone string
-// 	Password  string
-// }
-
-func CreateUser(name, telephone, password string) bool {
+func CreateUser(user model.User) bool {
 	fmt.Println("注册用户")
-	_, err := DB.Exec("insert into users(name,telephone,password) values(?,?,?)", name, telephone, password)
+	_, err := DB.Exec("insert into users(name,telephone,password) values(?,?,?)", user.Name, user.Telephone, user.Password)
 	if err != nil {
 		fmt.Println("创建用户失败")
 		return true
 	}
-	fmt.Println("创建用户成功")
+	fmt.Println("创建用户成功  所有用户如下")
+	AllUsers()
 	return false
 }
 func AllUsers() {
@@ -120,7 +115,9 @@ func AllUsers() {
 		var name string
 		var telephone string
 		var password string
-		if err := rows.Scan(&id, &name, &telephone, &password); err != nil {
+		var create_time string
+		var uppdata_time string
+		if err := rows.Scan(&id, &name, &telephone, &password, &create_time, &uppdata_time); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(id, name, telephone, password)
@@ -131,32 +128,15 @@ func AllUsers() {
 
 	}
 }
-func DropUser(name string) {
+func DropUser(id int) {
 	fmt.Println("删除用户")
-	_, err := DB.Exec("delete from users where name=?", name)
+	_, err := DB.Exec("delete from users where id=?", id)
 	if err != nil {
 		fmt.Println("删除用户失败")
 		return
 	}
-	fmt.Println("删除用户成功")
-}
-
-// 查询是电话是否存在
-func IsTelephoneExist(t string) bool {
-	fmt.Println("查询电话号码是否存在")
-	row := DB.QueryRow("SELECT id FROM users where telephone=? ", t)
-	if row.Err() != nil {
-		log.Println(row.Err())
-
-	}
-	var id int
-	if err := row.Scan(&id); err != nil {
-		// 这里才是判断找没找到
-		fmt.Println("不存在该用户 可以创建")
-		return false
-	}
-	fmt.Println("已经存在")
-
-	return true
+	fmt.Println("删除用户成功 所有用户如下")
+	AllUsers()
 
 }
+
