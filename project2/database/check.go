@@ -55,7 +55,6 @@ func IsPasswordRight(t string, p string) model.User {
 	if rrow.Err() != nil {
 		log.Println(rrow.Err())
 	}
-	fmt.Println("chengon")
 	var id int
 	var name string
 	var telephone string
@@ -65,12 +64,39 @@ func IsPasswordRight(t string, p string) model.User {
 	if err := rrow.Scan(&id, &name, &telephone, &password2, &time1, &time2); err != nil {
 		// 这里显示查没查到
 		log.Fatal(err)
+		return model.User{}
 	}
 	fmt.Println("返回user:", model.User{name, telephone, password2})
 	return model.User{name, telephone, password2}
 
 }
 
+// 通过id返回一个user
+func ID2User(i int) model.User {
+	fmt.Println("同过id查找user")
+	rrow := DB.QueryRow("SELECT * FROM users where id=? ", i)
+	if rrow.Err() != nil {
+		log.Println(rrow.Err())
+	}
+	var id int
+	var name string
+	var telephone string
+	var password2 string
+	var time1 string
+	var time2 string
+	if err := rrow.Scan(&id, &name, &telephone, &password2, &time1, &time2); err != nil {
+		// 这里显示查没查到
+		return model.User{}
+
+		log.Fatal(err)
+		// 返回一个空的
+	}
+	fmt.Println("返回user:", model.User{name, telephone, password2})
+	return model.User{name, telephone, password2}
+
+}
+
+// 通过user返回id
 func ID(u model.User) int {
 	fmt.Println("查询id")
 	row := DB.QueryRow("SELECT id FROM users where name=? ", u.Name)
@@ -81,7 +107,7 @@ func ID(u model.User) int {
 	var id int
 	if err := row.Scan(&id); err != nil {
 		// 这里才是判断找没找到
-		fmt.Println("不存在该用户")
+		fmt.Println("不存在该用户 返回-1")
 		return -1
 	}
 	fmt.Println("id为", id)
